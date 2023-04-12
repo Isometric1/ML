@@ -1,0 +1,44 @@
+class line:
+    def __init__(self, coord):
+        self.coord = coord
+
+    def find(self, r):
+        return self.coord[0] * r + self.coord[1]
+
+
+class quadric:
+    def __init__(self, coords):
+        self.coords = coords
+
+    def __add__(self, other):
+        for i in range(6):
+            self.coords[i] += other.coords[i]
+        return self
+
+
+class Data:
+    def __init__(self, x_coords, y_coords, num):
+        self.x_coords = x_coords
+        self.y_coords = y_coords
+        self.num = num
+
+    def regression(self) -> line:
+        dr = quadric([0 for i in range(6)])
+        for i in range(self.num):
+            fr = self.x_coords[i]
+            sc = self.y_coords[i]
+            dr += quadric([fr * fr, 2 * fr, 1, -2 * fr * sc, -2 * sc, sc * sc])
+        down = 4 * dr.coords[0] * dr.coords[2] - dr.coords[1] * dr.coords[1]
+        up_x = -dr.coords[3] * 2 * dr.coords[2] + dr.coords[4] * dr.coords[1]
+        up_y = -2 * dr.coords[0] * dr.coords[4] + dr.coords[1] * dr.coords[3]
+        return line([up_x / down, up_y / down])
+
+
+def predict(r: Data, target) -> float:
+    ln = r.regression()
+    return ln.find(target)
+
+
+Mine = Data([0,2,2,4,4,4,6,6,6,6,8,8,8,10,10,10,12,14], [2,2,6,4,6,8,4,8,10,12,8,10,12,10,12,16,12,16], 18)
+print(predict(Mine, 20))
+print(*Mine.regression().coord)
